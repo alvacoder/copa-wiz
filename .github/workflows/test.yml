@@ -1,0 +1,37 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+      - release-*
+    tags:
+      - v*
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches:
+      - main
+      - release-*
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: read-all
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.3.1
+        with:
+          egress-policy: audit
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Unit test
+        shell: bash
+        env:
+          CODECOV_OPTS: "-coverprofile=coverage.txt -covermode=atomic"
+        run: make test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
